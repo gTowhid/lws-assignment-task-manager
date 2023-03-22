@@ -14,6 +14,17 @@ export const tasksApi = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        // pessimistic cache update
+        try {
+          const { data: newTask } = await queryFulfilled;
+          dispatch(
+            apiSlice.util.updateQueryData('getTasks', undefined, (draft) => {
+              draft.push(newTask);
+            })
+          );
+        } catch {}
+      },
     }),
     editTask: builder.mutation({
       query: ({ id, data }) => ({
@@ -21,12 +32,38 @@ export const tasksApi = apiSlice.injectEndpoints({
         method: 'PATCH',
         body: data,
       }),
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        // pessimistic cache update
+        try {
+          const { data: updatedTask } = await queryFulfilled;
+          dispatch(
+            apiSlice.util.updateQueryData('getTasks', undefined, (draft) => {
+              const index = draft.findIndex((task) => task.id == arg.id);
+              draft[index] = updatedTask;
+            })
+          );
+        } catch {}
+      },
     }),
     deleteTask: builder.mutation({
       query: (id) => ({
         url: `/tasks/${id}`,
         method: 'DELETE',
       }),
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        // optimistic cache update
+        const patchResult = dispatch(
+          apiSlice.util.updateQueryData('getTasks', undefined, (draft) => {
+            const index = draft.findIndex((task) => task.id == arg);
+            draft.splice(index, 1);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          patchResult.undo();
+        }
+      },
     }),
   }),
 });
