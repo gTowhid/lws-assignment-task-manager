@@ -1,7 +1,11 @@
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.svg';
+import { searched } from '../features/filter/filterSlice';
 
 export default function Navbar() {
+  const dispatch = useDispatch();
+
   return (
     <nav className="container relative py-3">
       <div className="flex items-center justify-between">
@@ -15,6 +19,7 @@ export default function Navbar() {
             placeholder="Search Task"
             className="search-input"
             id="lws-searchTask"
+            onChange={(e) => dispatch(searched(e.target.value))}
           />
         </div>
       </div>

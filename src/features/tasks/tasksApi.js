@@ -42,6 +42,15 @@ export const tasksApi = apiSlice.injectEndpoints({
               draft[index] = updatedTask;
             })
           );
+          dispatch(
+            apiSlice.util.updateQueryData(
+              'getTask',
+              arg.id.toString(),
+              (draft) => {
+                return updatedTask;
+              }
+            )
+          );
         } catch {}
       },
     }),
