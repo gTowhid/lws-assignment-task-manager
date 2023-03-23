@@ -8,7 +8,7 @@ export default function MembersList() {
   if (isLoading) content = <div>Loading...</div>;
   if (!isLoading && isError) content = <div>{error}</div>;
   if (!isLoading && !isError && members?.length === 0)
-    content = <div>No Tasks Found!</div>;
+    content = <div>No Member Found!</div>;
 
   if (!isLoading && !isError && members?.length > 0) {
     content = members.map((member) => (

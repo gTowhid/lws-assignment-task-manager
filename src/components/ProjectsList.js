@@ -1,16 +1,21 @@
+import { useDispatch } from 'react-redux';
 import { useGetProjectsQuery } from '../features/projects/projectsApi';
 import Project from './Project';
+import { filterInitialized } from '../features/filter/filterSlice';
 
 export default function ProjectsList() {
   const { data: projects, isLoading, isError, error } = useGetProjectsQuery();
+
+  const dispatch = useDispatch();
 
   let content = null;
   if (isLoading) content = <div>Loading...</div>;
   if (!isLoading && isError) content = <div>{error}</div>;
   if (!isLoading && !isError && projects?.length === 0)
-    content = <div>No Tasks Found!</div>;
+    content = <div>No Projects Found!</div>;
 
   if (!isLoading && !isError && projects?.length > 0) {
+    dispatch(filterInitialized(projects));
     content = projects.map((project) => (
       <Project key={project.id} project={project} />
     ));
